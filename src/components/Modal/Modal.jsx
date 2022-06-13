@@ -1,48 +1,47 @@
-import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import s from './Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleKeyDown = event => {
-    if (event.code === 'Escape') {
-      this.props.toggleModal();
-    }
-  };
-
-  handleBackdropClick = event => {
+const Modal = ({ toggleModal, bigPicture }) => {
+  const handleBackdropClick = event => {
     if (event.currentTarget === event.target) {
-      this.props.toggleModal();
+      toggleModal();
     }
   };
 
-  render() {
-    const backdropClick = this.handleBackdropClick;
-    const { largeImageURL, tags } = this.props.bigPicture;
+  useEffect(() => {
+    const handleKeyDown = event => {
+      if (event.code === 'Escape') {
+        toggleModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [toggleModal]);
 
-    return createPortal(
-      <div className={s.overlay} onClick={backdropClick}>
-        <div className={s.modal}>
-          <img src={largeImageURL} alt={tags} />
-        </div>
-      </div>,
-      modalRoot
-    );
-  }
-}
+  const { largeImageURL, tags } = bigPicture;
+
+  return createPortal(
+    <div className={s.overlay} onClick={handleBackdropClick}>
+      <div className={s.modal}>
+        <img src={largeImageURL} alt={tags} />
+      </div>
+    </div>,
+    modalRoot
+  );
+};
 
 Modal.propTypes = {
   toggleModal: PropTypes.func.isRequired,
+  bigPicture: PropTypes.shape({
+    largeImageURL: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+  }),
 };
 
 export default Modal;

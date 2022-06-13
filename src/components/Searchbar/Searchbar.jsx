@@ -1,50 +1,44 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import { FcSearch } from 'react-icons/fc';
 import { toast } from 'react-toastify';
 import s from './Searchbar.module.css';
 
-export default class Searchbar extends Component {
-  state = {
-    picturesName: '',
+const Searchbar = ({ onSubmit, clearPage }) => {
+  const [picturesName, setPicturesName] = useState('');
+
+  const handlePictureChange = event => {
+    setPicturesName(event.currentTarget.value.toLowerCase());
   };
 
-  handlePictureChange = event => {
-    this.setState({ picturesName: event.currentTarget.value.toLowerCase() });
-  };
-
-  handleSubmit = event => {
+  const handleSubmit = event => {
     event.preventDefault();
-    if (this.state.picturesName.trim() === '') {
+    if (picturesName.trim() === '') {
       return toast.error('non name');
     }
-    this.props.onSubmit(this.state.picturesName);
-
-    this.setState({ picturesName: '' });
+    onSubmit(picturesName);
+    setPicturesName('');
+    clearPage();
   };
 
-  render() {
-    const onSubmit = this.handleSubmit;
-    const pictureChange = this.handlePictureChange;
+  return (
+    <header className={s.searchbar}>
+      <form className={s.form} onSubmit={handleSubmit}>
+        <button type="submit" className={s.button}>
+          <span className={s.buttonLable}>
+            <FcSearch size="20" />
+          </span>
+        </button>
+        <input
+          className={s.input}
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          onChange={handlePictureChange}
+        />
+      </form>
+    </header>
+  );
+};
 
-    return (
-      <header className={s.searchbar}>
-        <form className={s.form} onSubmit={onSubmit}>
-          <button type="submit" className={s.button}>
-            <span className={s.buttonLable}>
-              <FcSearch size="20" />
-            </span>
-          </button>
-
-          <input
-            className={s.input}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            onChange={pictureChange}
-          />
-        </form>
-      </header>
-    );
-  }
-}
+export default Searchbar;
